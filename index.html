@@ -614,12 +614,7 @@ body.portrait-locked {
 }
 
 /* =========================================================
-   刻度带 —— 重写
-   —— 核心思路：
-     1. .tape-mark 高度为 0，其 top 值就是刻度线所在的绝对像素位置
-     2. .tape-tick 用 top: -1px 让 2px 高的线以 mark.top 为中心
-     3. .tape-label 用 transform: translateY(-50%) 让文字垂直中心对齐
-     4. 速度带刻度线贴右边缘，高度带刻度线贴左边缘
+   刻度带
    ========================================================= */
 .speed-tape,
 .alt-tape {
@@ -647,7 +642,6 @@ body.portrait-locked {
     top: 0;
     left: 0;
     right: 0;
-    /* 高度由 JS 动态设置 */
     will-change: transform;
 }
 
@@ -655,13 +649,13 @@ body.portrait-locked {
     position: absolute;
     left: 0;
     right: 0;
-    height: 0;  /* 关键：top 就是刻度线位置 */
+    height: 0;
     pointer-events: none;
 }
 
 .tape-mark .tape-tick {
     position: absolute;
-    top: -1px;  /* 让 2px 高的线以 mark.top 为中心 */
+    top: -1px;
     height: 2px;
     background: var(--tape-tick);
     box-shadow: 0 0 1px rgba(0,0,0,0.9);
@@ -685,7 +679,6 @@ body.portrait-locked {
     letter-spacing: 0.02em;
 }
 
-/* 速度带（左）：刻度线贴右边缘（姿态仪侧） */
 .speed-tape .tape-mark .tape-tick {
     right: 0;
     width: 8px;
@@ -694,11 +687,10 @@ body.portrait-locked {
     width: 14px;
 }
 .speed-tape .tape-mark .tape-label {
-    right: 20px;  /* 让数字位于最大 tick 左侧，留 6px 间隙 */
+    right: 20px;
     text-align: right;
 }
 
-/* 高度带（右）：刻度线贴左边缘（姿态仪侧） */
 .alt-tape .tape-mark .tape-tick {
     left: 0;
     width: 8px;
@@ -711,7 +703,6 @@ body.portrait-locked {
     text-align: left;
 }
 
-/* 当前值框 */
 .tape-readout {
     position: absolute;
     top: 50%;
@@ -740,7 +731,6 @@ body.portrait-locked {
     left: calc(-1 * clamp(8px, 1.4vh, 14px));
 }
 
-/* 单位标签 */
 .tape-bottom-label {
     position: absolute;
     bottom: 0;
@@ -808,6 +798,7 @@ body.portrait-locked {
 
 /* =========================================================
    航向带（顶部中央）
+   —— 关键：标记宽度固定为 40px
    ========================================================= */
 .heading-tape {
     position: absolute;
@@ -841,7 +832,7 @@ body.portrait-locked {
 }
 .heading-mark {
     position: relative;
-    width: clamp(28px, 4.4vw, 48px);
+    width: 40px; /* 固定宽度，与 JS 保持一致 */
     flex-shrink: 0;
     height: 100%;
     display: flex;
@@ -1116,43 +1107,6 @@ body.portrait-locked {
 .modal-content::-webkit-scrollbar-thumb { background: var(--bezel-mid); border-radius: 3px; }
 
 /* =========================================================
-   竖屏布局（被遮罩挡住，但仍然存在）
-   ========================================================= */
-@media (orientation: portrait) {
-    .pfd-layout {
-        flex-direction: column;
-        height: auto;
-        gap: 10px;
-        top: 50%;
-        padding: 0;
-    }
-    .attitude-box {
-        height: auto;
-        width: min(82vw, 78vh);
-        aspect-ratio: 1 / 1;
-    }
-    .speed-tape,
-    .alt-tape {
-        height: clamp(58px, 14vh, 110px);
-        width: min(82vw, 78vh);
-        flex-direction: column;
-        overflow: hidden;
-    }
-    .speed-tape .tape-scroll,
-    .alt-tape .tape-scroll {
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        height: 100%;
-        transform: translateY(-50%) !important;
-    }
-    .tape-bottom-label {
-        height: clamp(16px, 2.6vh, 22px);
-    }
-}
-
-/* =========================================================
    联系设计师卡片
    ========================================================= */
 #contact-author-section {
@@ -1321,9 +1275,7 @@ body.portrait-locked {
 </head>
 <body>
 
-<!-- =========================================================
-     竖屏锁定遮罩
-     ========================================================= -->
+<!-- 竖屏锁定遮罩 -->
 <div class="portrait-lock" id="portraitLock" role="alert" aria-live="polite">
     <div class="portrait-lock-content">
         <div class="phone-icon">
@@ -1338,9 +1290,7 @@ body.portrait-locked {
     </div>
 </div>
 
-<!-- =========================================================
-     开场动画
-     ========================================================= -->
+<!-- 开场动画 -->
 <div id="intro-overlay" role="img" aria-label="Intro animation: Designed by Horizon Studio">
     <div class="intro-content" aria-hidden="true">
         <span class="designed">Designed by</span>
@@ -1350,9 +1300,7 @@ body.portrait-locked {
     </div>
 </div>
 
-<!-- =========================================================
-     权限请求遮罩
-     ========================================================= -->
+<!-- 权限请求遮罩 -->
 <div class="permission-prompt" id="permissionPrompt">
     <h2>需要访问设备传感器与定位</h2>
     <p>为了提供姿态、G力及GPS高度数据，请点击下方按钮授权。请确保在 HTTPS 环境下运行。</p>
@@ -1369,9 +1317,7 @@ body.portrait-locked {
     <button id="requestPermissionBtn">授权并启动 PFD</button>
 </div>
 
-<!-- =========================================================
-     PFD 主面板
-     ========================================================= -->
+<!-- PFD 主面板 -->
 <div class="pfd-panel" id="pfdPanel">
 
     <div class="help-btn" id="helpBtn" role="button" aria-label="使用说明">?</div>
@@ -1457,9 +1403,7 @@ body.portrait-locked {
 
 </div>
 
-<!-- =========================================================
-     说明模态框
-     ========================================================= -->
+<!-- 说明模态框 -->
 <div class="modal-overlay" id="helpModal">
     <div class="modal-content">
         <h3>📖 使用说明与免责声明</h3>
@@ -1490,9 +1434,7 @@ body.portrait-locked {
     </div>
 </div>
 
-<!-- =========================================================
-     联系设计师卡片
-     ========================================================= -->
+<!-- 联系设计师卡片 -->
 <section id="contact-author-section" aria-label="Contact the Designer">
     <div class="contact-divider"></div>
 
@@ -1570,15 +1512,21 @@ body.portrait-locked {
 })();
 
 /* =========================================================================
-   全局状态与常量
+   PFD 主模块
    ========================================================================= */
 (function () {
     'use strict';
 
+    /* ---------- 常量的固定像素值（与 CSS 保持一致） ---------- */
+    var HEADING_MARK_WIDTH = 40;       // .heading-mark width，必须与 CSS 一致
+    var HEADING_MARKS_PER_CIRCLE = 36; // 每圈 36 个标记（10° × 36 = 360°）
+    var HEADING_CIRCLES = 3;           // 生成 3 圈刻度，确保连续滚动不会越界
+
     /* ---------- 状态 ---------- */
     var pitch = 0;
     var roll = 0;
-    var heading = 0;
+    var headingContinuous = 360;       // 连续航向（360 = 第二圈起点，视觉上等同 0°）
+    var headingDisplay = 0;            // 归一化后的显示航向（0~360）
     var gForce = 1.0;
     var altitudeFt = 0;
     var speedKts = 0;
@@ -1602,6 +1550,7 @@ body.portrait-locked {
 
     var lastIsLandscape = null;
 
+    /* ---------- 震动 ---------- */
     var lastVibrationTime = 0;
     var lastVibratedHeading = null;
     var VIBRATION_COOLDOWN = 220;
@@ -1612,7 +1561,6 @@ body.portrait-locked {
     var PX_PER_DEGREE_PITCH = 6;
     var PX_PER_KNOT_SPEED   = 3;
     var PX_PER_FOOT_ALT     = 0.5;
-    var PX_PER_HEADING_DEG  = 4;
 
     /* ---------- 刻度范围 ---------- */
     var SPEED_MIN = 0;
@@ -1644,6 +1592,7 @@ body.portrait-locked {
 
     var gForceValue        = document.getElementById('gForceValue');
     var slipBall           = document.getElementById('slipBall');
+    var slipIndicatorEl    = slipBall.parentElement;
 
     var calibrateBtn       = document.getElementById('calibrateBtn');
     var resetBtn           = document.getElementById('resetBtn');
@@ -1655,6 +1604,18 @@ body.portrait-locked {
 
     function isLandscape() {
         return window.innerWidth > window.innerHeight;
+    }
+
+    function normalize360(v) {
+        return ((v % 360) + 360) % 360;
+    }
+
+    function padHeading(h) {
+        var d = Math.round(h) % 360;
+        if (d < 0) d += 360;
+        if (d < 10)  return '00' + d;
+        if (d < 100) return '0' + d;
+        return '' + d;
     }
 
     /* =====================================================================
@@ -1693,8 +1654,6 @@ body.portrait-locked {
 
     /* =====================================================================
        生成速度带刻度
-       —— 每个 tape-mark 的 top = 该刻度对应的绝对像素位置
-       —— 主刻度（每 10 节）加长并显示数字
        ===================================================================== */
     function generateSpeedTape() {
         speedTapeScroll.innerHTML = '';
@@ -1727,7 +1686,6 @@ body.portrait-locked {
 
     /* =====================================================================
        生成高度带刻度
-       —— 主刻度（每 500 英尺）加长，数字显示在每 100 英尺
        ===================================================================== */
     function generateAltTape() {
         altTapeScroll.innerHTML = '';
@@ -1748,12 +1706,13 @@ body.portrait-locked {
             tick.className = 'tape-tick';
             mark.appendChild(tick);
 
-            /* 每 100 英尺显示数字；非主刻度数字降低对比度 */
+            /* 每 100 英尺显示数字；非 500 倍数时降低不透明度 */
             var label = document.createElement('span');
             label.className = 'tape-label';
             label.textContent = a;
             if (!isMajor) {
-                label.style.opacity = '0.72';
+                label.style.opacity = '0.62';
+                label.style.fontSize = 'clamp(9px, 1.45vh, 11px)';
             }
             mark.appendChild(label);
 
@@ -1763,18 +1722,20 @@ body.portrait-locked {
 
     /* =====================================================================
        生成航向带刻度
+       —— 固定宽度 40px，共 3 圈
        ===================================================================== */
     function generateHeadingTape() {
         headingScroll.innerHTML = '';
 
-        var totalMarks = 72;
-        headingScroll.style.width = (totalMarks * 40) + 'px';
+        var totalMarks = HEADING_MARKS_PER_CIRCLE * HEADING_CIRCLES;
+        headingScroll.style.width = (totalMarks * HEADING_MARK_WIDTH) + 'px';
 
-        for (var i = 0; i < 360 * 2; i += 10) {
+        /* 从 0 到 (360 * 3 - 10)，每 10° 一个标记，共 108 个 */
+        for (var i = 0; i < 360 * HEADING_CIRCLES; i += 10) {
+            var deg = i % 360;
             var mark = document.createElement('div');
             mark.className = 'heading-mark';
 
-            var deg = i % 360;
             if (deg % 30 === 0) {
                 mark.classList.add('major');
             }
@@ -1789,12 +1750,12 @@ body.portrait-locked {
 
             var label = document.createElement('div');
             label.className = 'h-label';
-            if (deg === 0)        label.textContent = 'N';
-            else if (deg === 90)  label.textContent = 'E';
-            else if (deg === 180) label.textContent = 'S';
-            else if (deg === 270) label.textContent = 'W';
+            if (deg === 0)           label.textContent = 'N';
+            else if (deg === 90)     label.textContent = 'E';
+            else if (deg === 180)    label.textContent = 'S';
+            else if (deg === 270)    label.textContent = 'W';
             else if (deg % 30 === 0) label.textContent = (deg / 10);
-            else label.textContent = '';
+            else                     label.textContent = '';
             mark.appendChild(label);
 
             mark.dataset.heading = i;
@@ -1804,7 +1765,6 @@ body.portrait-locked {
 
     /* =====================================================================
        更新刻度带滚动位置
-       —— 核心公式：offsetY = containerH/2 - (current - min) * PX_PER_UNIT
        ===================================================================== */
     function updateSpeedTape(current) {
         var containerH = speedTapeEl.clientHeight;
@@ -1822,14 +1782,46 @@ body.portrait-locked {
         altTapeScroll.style.transform = 'translateY(' + offsetY + 'px)';
     }
 
-    function updateHeadingTape(current) {
+    /* =====================================================================
+       更新航向带位置
+       —— 关键：让 headingContinuous 对应的刻度线（含中心线）居中对齐指针
+       —— 标记中心 = markIdx * HEADING_MARK_WIDTH + HEADING_MARK_WIDTH / 2
+       —— 用中间一圈（索引偏移 HEADING_MARKS_PER_CIRCLE）避免接近 0/360 时越界
+       ===================================================================== */
+    function updateHeadingTape(hdgContinuous) {
         var containerW = headingTapeEl.clientWidth;
         if (containerW <= 0) return;
         var centerX = containerW / 2;
-        var markIndexOffset = 360;
-        var totalOffset = (markIndexOffset + current) / 10 * 40;
-        var offsetX = centerX - totalOffset;
+
+        /* 连续度 → 浮点标记索引（加一圈偏移，让第一圈作为缓冲） */
+        var markIdxFloat = hdgContinuous / 10 + HEADING_MARKS_PER_CIRCLE;
+
+        /* 该标记的中心像素位置 */
+        var markCenterPx = markIdxFloat * HEADING_MARK_WIDTH + HEADING_MARK_WIDTH / 2;
+
+        /* 平移，使标记中心恰好位于容器中心 */
+        var offsetX = centerX - markCenterPx;
         headingScroll.style.transform = 'translateX(' + offsetX + 'px)';
+    }
+
+    /* =====================================================================
+       更新侧滑球位置（基于像素，而不是基于球的百分比）
+       ===================================================================== */
+    function updateSlipBall(slipRaw) {
+        /* slipRaw 归一化到 [-25, 25] */
+        var containerW = slipIndicatorEl.clientWidth;
+        var ballW = slipBall.offsetWidth;
+        if (containerW <= 0 || ballW <= 0) return;
+
+        /* 最大水平位移：容器一半减去球半径，再留 3px 内边距 */
+        var maxShift = (containerW - ballW) / 2 - 3;
+        if (maxShift < 0) maxShift = 0;
+
+        var shiftPx = (slipRaw / 25) * maxShift;
+        if (shiftPx > maxShift) shiftPx = maxShift;
+        if (shiftPx < -maxShift) shiftPx = -maxShift;
+
+        slipBall.style.transform = 'translateX(' + shiftPx + 'px)';
     }
 
     /* =====================================================================
@@ -1841,11 +1833,10 @@ body.portrait-locked {
         generateAltTape();
         generateHeadingTape();
 
-        /* 用 requestAnimationFrame 确保布局完成后再计算滚动位置 */
         requestAnimationFrame(function () {
             updateSpeedTape(0);
             updateAltTape(0);
-            updateHeadingTape(0);
+            updateHeadingTape(headingContinuous);
         });
 
         rollContainer.style.transform = 'rotate(0deg)';
@@ -1853,19 +1844,24 @@ body.portrait-locked {
         rollPointer.style.transform = 'translateX(-50%) translateX(0px)';
 
         gForceValue.textContent = '1.0';
-        slipBall.style.transform = 'translateX(0%)';
+        slipBall.style.transform = 'translateX(0px)';
 
-        lastVibratedHeading = heading;
+        lastVibratedHeading = headingDisplay;
         lastIsLandscape = isLandscape();
     }
 
     window.addEventListener('resize', function () {
         var currentIsLandscape = isLandscape();
         if (lastIsLandscape !== null && lastIsLandscape !== currentIsLandscape) {
+            /* 横竖屏切换 → 重置校准，避免姿态角突变 */
             isCalibrated = false;
             pitch = 0;
             roll = 0;
-            heading = 0;
+            headingContinuous = 360;
+            headingDisplay = 0;
+            offsetPitch = 0;
+            offsetRoll = 0;
+            offsetHeading = 0;
             rollContainer.style.transform = 'rotate(0deg)';
             pitchContainer.style.transform = 'translateY(0px)';
             rollPointer.style.transform = 'translateX(-50%) translateX(0px)';
@@ -1877,8 +1873,8 @@ body.portrait-locked {
             if (gpsStatus === 'ACTIVE') {
                 updateAltTape(altitudeFt);
             }
-            updateHeadingTape(heading);
-        }, 50);
+            updateHeadingTape(headingContinuous);
+        }, 60);
     });
 
     /* =====================================================================
@@ -1961,7 +1957,8 @@ body.portrait-locked {
     }
 
     /* =====================================================================
-       姿态传感器处理 —— 修复俯仰反向
+       姿态传感器处理（横屏映射）
+       —— 修复俯仰反向：横屏下抬头时 gamma 通常为负，取负号使其变为正俯仰
        ===================================================================== */
     function handleOrientation(event) {
         if (!sensorPermissionGranted) return;
@@ -1971,12 +1968,7 @@ body.portrait-locked {
         var beta  = event.beta  || 0;
         var gamma = event.gamma || 0;
 
-        /* 横屏映射：
-           - 抬手机（屏幕上边远离用户）→ gamma < 0 → targetPitch > 0
-           - 因此 targetPitch = -gamma
-           - 侧倾保持不变：targetRoll = -beta
-           - 航向 alpha 直接用
-        */
+        /* 横屏映射：俯仰 = -gamma，滚转 = -beta */
         targetPitch = -gamma;
         targetRoll  = -beta;
         targetHeading = alpha;
@@ -1993,18 +1985,33 @@ body.portrait-locked {
         var rawRoll  = targetRoll  - offsetRoll;
         var rawHeading = targetHeading - offsetHeading;
 
+        /* 姿态平滑 */
         pitch = pitch * 0.85 + rawPitch * 0.15;
         roll  = roll  * 0.85 + rawRoll  * 0.15;
 
-        var headingDiff = rawHeading - heading;
-        if (headingDiff > 180)  headingDiff -= 360;
-        if (headingDiff < -180) headingDiff += 360;
-        heading += headingDiff * 0.15;
-        heading = ((heading % 360) + 360) % 360;
+        /* 连续航向跟踪：
+           - 目标归一化到 [0, 360)
+           - 与当前 headingContinuous 的差值归一化到 (-180, 180]
+           - 平滑更新，允许 headingContinuous 跨越 0/360 而不跳变
+        */
+        var rawHeadingNorm = normalize360(rawHeading);
+        var currNorm = normalize360(headingContinuous);
+        var diff = rawHeadingNorm - currNorm;
+        if (diff > 180)  diff -= 360;
+        if (diff < -180) diff += 360;
+
+        headingContinuous += diff * 0.15;
+
+        /* 环绕 headingContinuous 使其保持在 [0, 720)（对应中间一圈标记）
+           —— 由于视觉周期性，加减 360 不会造成视觉跳变 */
+        while (headingContinuous < 0)   headingContinuous += 360;
+        while (headingContinuous >= 720) headingContinuous -= 360;
+
+        headingDisplay = normalize360(headingContinuous);
     }
 
     /* =====================================================================
-       运动传感器处理
+       运动传感器处理（G 力 + 侧滑）
        ===================================================================== */
     function handleMotion(event) {
         if (!sensorPermissionGranted) return;
@@ -2023,11 +2030,12 @@ body.portrait-locked {
         targetGForce = rawG;
         gForce = gForce * 0.9 + targetGForce * 0.1;
 
-        var slipX = ax * 2;
-        slipX = Math.max(-25, Math.min(25, slipX));
+        /* 侧滑：X 轴加速度映射到 [-25, 25] */
+        var slipRaw = ax * 2;
+        if (slipRaw > 25)  slipRaw = 25;
+        if (slipRaw < -25) slipRaw = -25;
 
-        var ballPercent = (slipX / 25) * 42;
-        slipBall.style.transform = 'translateX(' + ballPercent + '%)';
+        updateSlipBall(slipRaw);
     }
 
     /* =====================================================================
@@ -2081,11 +2089,11 @@ body.portrait-locked {
         var displayRoll  = Math.max(-90, Math.min(90, roll));
 
         rollContainer.style.transform = 'rotate(' + (-displayRoll) + 'deg)';
-        /* 俯仰：抬头时 pitch > 0 → translateY 正 → 姿态球向下移动 → 屏幕中心显示天空 */
+        /* 俯仰：pitch > 0（抬头）→ 姿态球上移（负 translateY）→ 显示天空 */
         pitchContainer.style.transform = 'translateY(' +
-            (displayPitch * PX_PER_DEGREE_PITCH) + 'px)';
+            (-displayPitch * PX_PER_DEGREE_PITCH) + 'px)';
 
-        /* 滚转指针 —— 只做水平平移 */
+        /* 滚转指针：只做水平平移 */
         if (attitudeBox) {
             var boxW = attitudeBox.clientWidth || 300;
             var pointerShiftPct = (displayRoll / 90) * 40;
@@ -2096,14 +2104,10 @@ body.portrait-locked {
         }
 
         /* ---- 航向带 ---- */
-        updateHeadingTape(heading);
-        var headingDeg = Math.round(heading) % 360;
-        if (headingDeg < 0) headingDeg += 360;
-        headingReadout.textContent =
-            (headingDeg < 100 ? (headingDeg < 10 ? '00' : '0') : '') +
-            headingDeg + ' H';
+        updateHeadingTape(headingContinuous);
+        headingReadout.textContent = padHeading(headingDisplay) + ' H';
 
-        triggerHeadingVibration(heading);
+        triggerHeadingVibration(headingDisplay);
 
         /* ---- G 力 ---- */
         gForceValue.textContent = gForce.toFixed(1);
@@ -2130,12 +2134,18 @@ body.portrait-locked {
         }
 
         /* ---- GPS 速度 ---- */
-        if (gpsSpeedAvailable && gpsStatus === 'ACTIVE') {
-            speedKts = speedKts * 0.92 + targetSpeedKts * 0.08;
-            var rounded = Math.round(speedKts);
-            speedValueEl.textContent = rounded;
-            speedValueEl.style.color = '#f2f2f2';
-            updateSpeedTape(speedKts);
+        if (gpsStatus === 'ACTIVE') {
+            if (gpsSpeedAvailable) {
+                speedKts = speedKts * 0.92 + targetSpeedKts * 0.08;
+                speedValueEl.textContent = Math.round(speedKts);
+                speedValueEl.style.color = '#f2f2f2';
+                updateSpeedTape(speedKts);
+            } else {
+                /* GPS 已激活但速度不可用 → 显示 0 */
+                speedValueEl.textContent = '0';
+                speedValueEl.style.color = '#f2f2f2';
+                updateSpeedTape(0);
+            }
         } else if (gpsStatus === 'SEARCHING') {
             speedValueEl.textContent = 'SEARCH';
             speedValueEl.style.color = 'var(--accent-amber)';
@@ -2156,17 +2166,17 @@ body.portrait-locked {
         rollContainer.style.transform = 'rotate(0deg)';
         pitchContainer.style.transform = 'translateY(0px)';
         rollPointer.style.transform = 'translateX(-50%) translateX(0px)';
-        updateHeadingTape(0);
-        headingReadout.textContent = '000 H';
+        updateHeadingTape(headingContinuous);
+        headingReadout.textContent = padHeading(headingDisplay) + ' H';
         gForceValue.textContent = '1.0';
         gForceValue.style.color = 'var(--accent-green)';
-        slipBall.style.transform = 'translateX(0%)';
+        slipBall.style.transform = 'translateX(0px)';
         altValueEl.textContent = 'SEARCH';
         altValueEl.style.color = 'var(--accent-amber)';
         speedValueEl.textContent = 'SEARCH';
         speedValueEl.style.color = 'var(--accent-amber)';
         updateSpeedTape(0);
-        lastVibratedHeading = 0;
+        lastVibratedHeading = headingDisplay;
     }
 
     calibrateBtn.addEventListener('click', function () {
@@ -2175,7 +2185,8 @@ body.portrait-locked {
         offsetHeading = targetHeading;
         pitch = 0;
         roll  = 0;
-        heading = 0;
+        headingContinuous = 360;
+        headingDisplay = 0;
         gForce = 1.0;
         resetUI();
     });
@@ -2186,7 +2197,8 @@ body.portrait-locked {
         offsetHeading = 0;
         pitch = 0;
         roll  = 0;
-        heading = 0;
+        headingContinuous = 360;
+        headingDisplay = 0;
         gForce = 1.0;
         altitudeFt = 0;
         targetAltFt = 0;
@@ -2216,10 +2228,24 @@ body.portrait-locked {
         });
     });
 
-    /* Android 等无需显式授权的设备 */
+    /* =====================================================================
+       Android 自动启动：
+       —— 只有 "无 requestPermission 方法"（即不需要权限）时才自动启动
+       —— 包括 DeviceOrientationEvent 未定义的情况，也应隐藏遮罩
+       ===================================================================== */
     setTimeout(function () {
+        var needsExplicitPermission = false;
+
         if (typeof DeviceOrientationEvent !== 'undefined' &&
-            typeof DeviceOrientationEvent.requestPermission !== 'function') {
+            typeof DeviceOrientationEvent.requestPermission === 'function') {
+            needsExplicitPermission = true;
+        }
+        if (typeof DeviceMotionEvent !== 'undefined' &&
+            typeof DeviceMotionEvent.requestPermission === 'function') {
+            needsExplicitPermission = true;
+        }
+
+        if (!needsExplicitPermission) {
             sensorPermissionGranted = true;
             permissionPrompt.style.display = 'none';
             startGeolocation();
@@ -2250,12 +2276,14 @@ body.portrait-locked {
     /* 初始化 */
     initUI();
 
+    /* 调试接口 */
     window.__pfd = {
         getState: function () {
             return {
                 pitch: pitch,
                 roll: roll,
-                heading: heading,
+                headingContinuous: headingContinuous,
+                headingDisplay: headingDisplay,
                 gForce: gForce,
                 altitudeFt: altitudeFt,
                 speedKts: speedKts,
@@ -2273,6 +2301,10 @@ body.portrait-locked {
             if (navigator.vibrate) {
                 try { navigator.vibrate(30); } catch (e) {}
             }
+        },
+        setHeadingContinuous: function (v) {
+            headingContinuous = v;
+            headingDisplay = normalize360(v);
         }
     };
 })();
